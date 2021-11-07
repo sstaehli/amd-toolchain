@@ -19,7 +19,7 @@ httppid=$!
 
 # create image in subshell to make shure http server is killed after docker command
 (
-    docker build --build-arg VIVADO_VERSION=${version} --build-arg VIVADO_TAR_FILE=http://${host_ip}:8000/${tarfile} -t vivado:${version} .
+    docker build --build-arg VIVADO_VERSION=${version} --build-arg VIVADO_TAR_FILE=http://${host_ip}:8000/${tarfile} -t vivado:${version} --no-cache .
 )
 
 # stop http-server
