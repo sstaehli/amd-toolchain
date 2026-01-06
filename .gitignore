@@ -1,2 +1,9 @@
-Xilinx_Vivado_SDK_*
-*.tar.gz*
+build/
+*.lic
+*.tar.gz
+*.tar
+*.run
+*.jou
+*.log
+*.str
+settings.json

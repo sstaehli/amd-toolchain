@@ -1,0 +1,26 @@
+ARG VIVADO_VERSION=unknown
+FROM build/amd-toolchain-base:$VIVADO_VERSION
+
+ARG VIVADO_VERSION=unknown
+    
+# Add network tools for dummy license NIC
+#RUN apt-get update && apt-get autoremove -y --purge && apt-get install -y \
+#    ethtool iproute2
+#
+#COPY *.lic /.Xilinx/
+
+# Set display environment variable (for Xvfb as started in entrypoint)
+ENV DISPLAY=:1
+
+# Set Vivado environment settings path
+ENV VIVADO_SETTINGS_PATH=/tools/AMD/${VIVADO_VERSION}/Vivado/settings64.sh
+ENV VITIS_SETTINGS_PATH=/tools/AMD/${VIVADO_VERSION}/Vitis/settings64.sh
+
+# Copy install config file and set the command accordingly
+COPY entrypoint.sh /
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /usr/local/bin/tini
+RUN chmod +x /usr/local/bin/tini
+ENTRYPOINT ["/usr/local/bin/tini", "--", "/entrypoint.sh"]
+CMD ["/bin/bash"]
+
+# USER nonroot

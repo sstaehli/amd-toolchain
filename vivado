@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Allow local root access
+xhost +local:root
+
+# Verify Xauthority file exists and has the display entry
+xauth list "$DISPLAY" || xauth list
+
+# Host Xauthority (use $XAUTHORITY if set, otherwise $HOME/.Xauthority)
+XAUTH=${XAUTHORITY:-${HOME:-}/.Xauthority}
+if [ ! -r "$XAUTH" ]; then
+    echo "Warning: Xauthority file '$XAUTH' not found or unreadable."
+    echo "If you want a quick permissive test, run on the host:  xhost +local:root"
+    echo "For a secure setup, create the Xauthority entry for DISPLAY and retry."
+fi
+
+# Run the Vivado Docker container
+docker run -i \
+    -e DISPLAY="$DISPLAY" \
+    -e XAUTHORITY=/root/.Xauthority \
+    -v "$XAUTH":/root/.Xauthority:ro \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v $(pwd):/workspace \
+    --rm \
+    build/amd-toolchain:2025.2 \
+    vivado -nolog -nojournal

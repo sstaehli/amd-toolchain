@@ -1,3 +1,6 @@
-README.md
-Xilinx*.tar.gz
-Xilinx_*/
+*
+!Dockerfile.*
+!build/
+!install_config*
+!entrypoint.sh
+!*.lic
