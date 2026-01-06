@@ -24,3 +24,5 @@ ENTRYPOINT ["/usr/local/bin/tini", "--", "/entrypoint.sh"]
 CMD ["/bin/bash"]
 
 # USER nonroot
+RUN apt-get update && apt-get autoremove -y --purge && apt-get install -y \
+    gosu
