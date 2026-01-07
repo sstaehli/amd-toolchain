@@ -18,9 +18,13 @@ create_image: create_base_image create_custom_image
 
 .PHONY: create_base_image
 create_base_image:
-	mkdir -p build
+	if [ ! -d build ]; then \
+		mkdir -p build; \
+		tar -xf FPGAs*$(VERSION)*.tar --strip-components 1 -C build; \
+	else \
+		echo "build folder exists, skipping extraction"; \
+	fi
 	cp install_config_$(VERSION).txt build/install_config.txt
-	tar -xf --strip-components=1 FPGAs*$(VERSION)*.tar -C build
 	docker build \
 	--file ./Dockerfile.Base \
 	--build-arg DISTRO=$(DISTRO) \
@@ -37,14 +41,15 @@ create_custom_image:
 	--tag build/amd-toolchain:$(VERSION) \
 	--no-cache build/
 
-docker build -t gitlab.airhead.ch:5050/containers/toolchains/amd-toolchain .
-
 .PHONY: push_image
 push_image:
 	@IMAGE_ID=$$(docker images --quiet build/amd-toolchain:$(VERSION)); \
 	echo "Pushing image with image ID: $$IMAGE_ID"
 	docker tag  build/amd-toolchain:$(VERSION) $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)
-	docker push $(REGISTRY)//containers/toolchains/amd-toolchain:$(VERSION)
+	docker push $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)
+	
+.PHONY: clean
+clean:	
 	docker rmi  build/amd-toolchain:$(VERSION)
 
 .PHONY: help

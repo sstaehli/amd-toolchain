@@ -1,35 +1,25 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-# Allow local root access
-#xhost +local:root
-#xhost +si:localuser:$(id -un)
-
-# Verify Xauthority file exists and has the display entry
-#xauth list "$DISPLAY" || xauth list
+REGISTRY=gitlab-registry.airhead.ch/containers/toolchains
 
 # Host Xauthority (use $XAUTHORITY if set, otherwise $HOME/.Xauthority)
 XAUTH=${XAUTHORITY:-${HOME:-}/.Xauthority}
 if [ ! -r "$XAUTH" ]; then
     echo "Warning: Xauthority file '$XAUTH' not found or unreadable."
-    echo "If you want a quick permissive test, run on the host:  xhost +local:root"
-    echo "For a secure setup, create the Xauthority entry for DISPLAY and retry."
 fi
 
 # Run the Vivado Docker container
 docker run -it \
     -e HOST_UID=$(id -u) \
     -e HOST_GID=$(id -g) \
-    -e HOME=/workspace/home \
     -e DISPLAY="$DISPLAY" \
     -e XAUTHORITY=/root/.Xauthority \
     -v "$XAUTH":/root/.Xauthority:ro \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $(pwd):/workspace \
     -w /workspace \
-    --rm \
-    build/amd-toolchain:2025.2 \
+    --rm \    
+    $REGISTRY/amd-toolchain:2025.2 \
     bash -lc \
         'groupadd -g "$HOST_GID" hostgroup; useradd -m -u "$HOST_UID" -g "$HOST_GID" hostuser; \
             exec gosu hostuser bash -lc \
-                "mkdir -p /workspace/home; vitis -w /workspace; exec bash"'
+                "vitis -w /workspace; exec bash"'

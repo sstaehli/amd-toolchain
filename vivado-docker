@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-# Allow local root access
-#xhost +local:root
-
-# Verify Xauthority file exists and has the display entry
-#xauth list "$DISPLAY" || xauth list
+REGISTRY=gitlab-registry.airhead.ch/containers/toolchains
 
 # Host Xauthority (use $XAUTHORITY if set, otherwise $HOME/.Xauthority)
 XAUTH=${XAUTHORITY:-${HOME:-}/.Xauthority}
@@ -26,7 +20,7 @@ docker run -i \
     -v $(pwd):/workspace \
     -w /workspace \
     --rm \
-    build/amd-toolchain:2025.2 \
+    $REGISTRY/amd-toolchain:2025.2 \
     bash -lc \
         'groupadd -g "$HOST_GID" hostgroup; useradd -m -u "$HOST_UID" -g "$HOST_GID" hostuser; \
             exec gosu hostuser bash -lc \
