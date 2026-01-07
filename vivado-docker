@@ -5,8 +5,7 @@ REGISTRY=gitlab-registry.airhead.ch/containers/toolchains
 XAUTH=${XAUTHORITY:-${HOME:-}/.Xauthority}
 if [ ! -r "$XAUTH" ]; then
     echo "Warning: Xauthority file '$XAUTH' not found or unreadable."
-    echo "If you want a quick permissive test, run on the host:  xhost +local:root"
-    echo "For a secure setup, create the Xauthority entry for DISPLAY and retry."
+    exit 1
 fi
 
 # Run the Vivado Docker container
