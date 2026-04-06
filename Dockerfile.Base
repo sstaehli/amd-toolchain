@@ -26,8 +26,11 @@ ENV LD_LIBRARY_PATH=/tools/AMD/$(VIVADO_VERSION)/Vitis/tps/lnx64/cmake-3.24.2/li
 # Avoid interactive dialog during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install lsb-release package to avoid wrapper generator issues in Vivado
 # Avoid XSCT Display issues in headless mode
+# Install python
 RUN apt-get update && apt-get autoremove -y --purge && apt-get install -y \
+    lsb-release \
     x11-utils \
     x11-xserver-utils \
     xvfb \

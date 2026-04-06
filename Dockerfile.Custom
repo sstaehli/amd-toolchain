@@ -1,5 +1,5 @@
 ARG VIVADO_VERSION=unknown
-FROM build/amd-toolchain-base:$VIVADO_VERSION
+FROM build/amd-toolchain-digilent:$VIVADO_VERSION
 
 ARG VIVADO_VERSION=unknown
     

@@ -14,7 +14,7 @@ all: create_image push_image
 	docker system prune
 
 .PHONY: create_image
-create_image: create_base_image create_custom_image
+create_image: create_base_image add_digilent_content create_custom_image
 
 .PHONY: create_base_image
 create_base_image:
@@ -29,7 +29,16 @@ create_base_image:
 	--file ./Dockerfile.Base \
 	--build-arg DISTRO=$(DISTRO) \
 	--build-arg VIVADO_VERSION=$(VERSION) \
-	--tag build/amd-toolchain-base:$(VERSION) \
+	--tag build/amd-toolchain:$(VERSION)-base \
+	--no-cache build/
+
+.PHONY: add_digilent_content
+add_digilent_content:
+	wget https://github.com/Digilent/vivado-boards/archive/refs/tags/XilinxBoardStore/v3.tar.gz -O build/digilent_boardfiles.tar.gz
+	docker build \
+	--file ./Dockerfile.Digilent \
+	--build-arg VIVADO_VERSION=$(VERSION) \
+	--tag build/amd-toolchain:$(VERSION)-digilent \
 	--no-cache build/
 
 .PHONY: create_custom_image
@@ -45,12 +54,19 @@ create_custom_image:
 push_image:
 	@IMAGE_ID=$$(docker images --quiet build/amd-toolchain:$(VERSION)); \
 	echo "Pushing image with image ID: $$IMAGE_ID"
-	docker tag  build/amd-toolchain:$(VERSION) $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)
+	docker tag build/amd-toolchain:$(VERSION)-base $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)-base
+	docker push $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)-base
+	docker tag build/amd-toolchain:$(VERSION)-digilent $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)-digilent
+	docker push $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)-digilent
+	docker tag build/amd-toolchain:$(VERSION) $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)
 	docker push $(REGISTRY)/containers/toolchains/amd-toolchain:$(VERSION)
 	
 .PHONY: clean
-clean:	
-	docker rmi  build/amd-toolchain:$(VERSION)
+clean:
+	docker rmi build/amd-toolchain:$(VERSION)-base || true
+	docker rmi build/amd-toolchain:$(VERSION)-digilent || true
+	docker rmi build/amd-toolchain:$(VERSION) || true
+	rm -rf build
 
 .PHONY: help
 help:

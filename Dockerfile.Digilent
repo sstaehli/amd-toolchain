@@ -1,0 +1,11 @@
+ARG VIVADO_VERSION=unknown
+FROM build/amd-toolchain-base:$VIVADO_VERSION
+
+ARG VIVADO_VERSION=unknown
+
+# Install digilent boardfiles
+ADD ./digilent_boardfiles.tar.gz /tmp/digilent_boardfiles/
+RUN mkdir -p /tools/AMD/${VIVADO_VERSION}/Vivado/data/boards/board_files/ && \
+    mv /tmp/digilent_boardfiles/vivado-boards-XilinxBoardStore-v3/new/board_files/arty-a7-100 /tools/AMD/${VIVADO_VERSION}/Vivado/data/boards/board_files/ && \
+    mv /tmp/digilent_boardfiles/vivado-boards-XilinxBoardStore-v3/new/board_files/zybo-z7-10 /tools/AMD/${VIVADO_VERSION}/Vivado/data/boards/board_files/ && \
+    rm -rf /tmp/digilent_boardfiles
